@@ -1,30 +1,24 @@
 import { ethers } from 'ethers'
-import NETWORKS from './constants/networks'
+import NETWORKS, { type Network } from './constants/networks'
+
+type Event = 'receiveToken'
 
 export default class TokenReceiver {
-  private provider: ethers.JsonRpcProvider
-  private contract: ethers.Contract
-  private contractAddress: string
+  private network: Network
 
-  constructor(provider: ethers.JsonRpcProvider, contractAddress: string) {
-    this.provider = provider
-    this.contractAddress = contractAddress
+  constructor(networkOrNetworkName: Network | keyof typeof NETWORKS) {
+    if (typeof networkOrNetworkName === 'string') {
+      this.network = NETWORKS[networkOrNetworkName]
+    } else {
+      this.network = networkOrNetworkName
+    }
   }
 
-  public async init() {
-    const abi = [
-      'event Transfer(address indexed from, address indexed to, uint256 value)'
-    ]
-    this.contract = new ethers.Contract(
-      this.contractAddress,
-      abi,
-      this.provider
-    )
-  }
-
-  public async listen() {
-    this.contract.on('Transfer', (from, to, value) => {
-      console.log(from, to, value)
-    })
+  public on(event: Event, callback: any) {
+    // const provider = new ethers.providers.JsonRpcProvider(this.network.rpcs.ankr)
+    // provider.on(event, callback)
   }
 }
+
+const receiver = new TokenReceiver('ethereumMainnet')
+// receiver.
